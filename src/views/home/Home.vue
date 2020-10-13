@@ -20,7 +20,7 @@
                      @tabClick="tabClick"></tab-control>
         <goods-list :goods="showGoods"/>
     </scroll>
-    <back-top @click.native="backClick" v-show="isShowBackTop"/>
+    <back-top @click.native="backClick" v-show="showBackTop" class="back-top"/>
   </div>
 <!--<h2>首页</h2>-->
 </template>
@@ -61,9 +61,11 @@ export default {
         'sell': {page: 0, list: []},
       },
       currentType: 'pop',
-      isShowBackTop: false,
+      showBackTop: false,
       tabOffsetTop: 0,
-      isTabFixed: false
+      isTabFixed: false,
+      saveY: 0,
+      isScrollTo: false
     }
   },
   computed: {
@@ -79,6 +81,18 @@ export default {
     this.getHomeGoods('pop')
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
+  },
+  activated() {
+    if (this.isScrollTo){
+      console.log(this.saveY)
+      this.$refs.scroll.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.scroll.refresh()
+    }
+  },
+  deactivated() {
+    this.isScrollTo = true
+    console.log(this.$refs.scroll.scroll.y)
+    this.saveY = this.$refs.scroll.scroll.y
   },
   mounted() {
     //  3. 监听item中图片加载完成
@@ -130,7 +144,7 @@ export default {
     // 返回顶部按钮的显示和隐藏
     contentScroll(position) {
       // console.log(position);
-      this.isShowBackTop = (-position.y) > 1000
+      this.showBackTop = (-position.y) > 1000
       this.isTabFixed = (-position.y) > this.tabOffsetTop
     },
     loadMore(){
@@ -200,7 +214,11 @@ export default {
   left: 0;
   right: 0;
 }
-
+.back-top {
+  position: fixed;
+  right: 8px;
+  bottom: 55px;
+}
 /*.content {*/
 /*height: calc(100% - 93px);*/
 /*overflow: hidden;*/
